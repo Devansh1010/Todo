@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, ObjectId, now } from 'mongoose'
+import mongoose, { Schema, Document } from 'mongoose'
 import { UserRole } from '@/app/models/UserRole'
 import { USER_ROLES } from '@/app/models/UserRole'; 
 
@@ -16,7 +16,7 @@ export interface User extends Document {
     }]
 }
 
-const userSchema = new Schema({
+const userSchema = new Schema<User>({
 
     username: {
         type: String,
@@ -45,6 +45,7 @@ const userSchema = new Schema({
         role: {
             type: String,
             enum: USER_ROLES,
+            required: true,
             default: 'member'
         },
         teamsId: [{

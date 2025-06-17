@@ -1,64 +1,83 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface Reminder extends Document {
-  title: string;
-  note?: string;
+export type AlertType = 
+  | 'reminder'
+  | 'mention'
+  | 'assignment'
+  | 'comment'
+  | 'role-update'
+  | 'invite'
+  | 'general';
+
+export type AlertTrigger = 
+  | 'task'
+  | 'team'
+  | 'comment'
+  | 'workspace'
+  | 'system';
+
+export type RepeatType = 'none' | 'daily' | 'weekly' | 'monthly';
+
+export interface Alert extends Document {
   userId: mongoose.Types.ObjectId;
-  taskId?: mongoose.Types.ObjectId; // Optional
   workspaceId: mongoose.Types.ObjectId;
-  remindAt: Date;
-  repeat?: 'none' | 'daily' | 'weekly' | 'monthly';
-  isActive: boolean;
+  title: string;
+  message?: string;
+  type: AlertType;
+  triggerFor: AlertTrigger;
+  referenceId?: mongoose.Types.ObjectId;
+
+  remindAt?: Date;
+  repeat?: RepeatType;
+
+  isReminder: boolean;
+
+  read: boolean;
+  toastShown: boolean;
+  delivered: boolean;
+
   createdAt: Date;
 }
 
-const reminderSchema = new Schema<Reminder>({
-  title: {
+const alertSchema = new Schema<Alert>({
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  workspaceId: { type: Schema.Types.ObjectId, ref: 'Workspace', required: true },
+
+  title: { type: String, required: true },
+  message: { type: String },
+
+  type: {
     type: String,
+    enum: ['reminder', 'mention', 'assignment', 'comment', 'role-update', 'invite', 'general'],
     required: true
   },
 
-  note: String,
-  
-  userId: {
+  triggerFor: {
+    type: String,
+    enum: ['task', 'team', 'comment', 'workspace', 'system'],
+    required: true
+  },
+
+  referenceId: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    required: false
   },
 
-  taskId: {
-    type: Schema.Types.ObjectId,
-    ref: 'Task',
-    default: null
-  },
-
-  workspaceId: {
-    type: Schema.Types.ObjectId,
-    ref: 'Workspace',
-    required: true
-  },
-
-  remindAt: {
-    type: Date,
-    required: true
-  },
-
+  remindAt: { type: Date },
   repeat: {
     type: String,
     enum: ['none', 'daily', 'weekly', 'monthly'],
     default: 'none'
   },
 
-  isActive: {
-    type: Boolean,
-    default: true
-  },
+  isReminder: { type: Boolean, default: false },
 
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+  read: { type: Boolean, default: false },
+  toastShown: { type: Boolean, default: false },
+  delivered: { type: Boolean, default: false },
+
+  createdAt: { type: Date, default: Date.now }
 });
 
-const ReminderModel = mongoose.models.Reminder || mongoose.model<Reminder>('Reminder', reminderSchema);
-export default ReminderModel;
+const AlertModel = mongoose.models.Alert || mongoose.model<Alert>('Alert', alertSchema);
+export default AlertModel;

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type AlertType = 
+export type AlertType =
   | 'reminder'
   | 'mention'
   | 'assignment'
@@ -9,7 +9,7 @@ export type AlertType =
   | 'invite'
   | 'general';
 
-export type AlertTrigger = 
+export type AlertTrigger =
   | 'task'
   | 'team'
   | 'comment'
@@ -40,10 +40,20 @@ export interface Alert extends Document {
 }
 
 const alertSchema = new Schema<Alert>({
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  workspaceId: { type: Schema.Types.ObjectId, ref: 'Workspace', required: true },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User', required: true
+  },
+  workspaceId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Workspace', required: true
+  },
 
-  title: { type: String, required: true },
+  title: {
+    type: String,
+    required: true
+  },
+
   message: { type: String },
 
   type: {
@@ -64,19 +74,35 @@ const alertSchema = new Schema<Alert>({
   },
 
   remindAt: { type: Date },
+
   repeat: {
     type: String,
     enum: ['none', 'daily', 'weekly', 'monthly'],
     default: 'none'
   },
 
-  isReminder: { type: Boolean, default: false },
+  isReminder: {
+    type: Boolean,
+    default: false
+  },
 
-  read: { type: Boolean, default: false },
-  toastShown: { type: Boolean, default: false },
-  delivered: { type: Boolean, default: false },
+  read: {
+    type: Boolean,
+    default: false
+  },
+  toastShown: {
+    type: Boolean,
+    default: false
+  },
+  delivered: {
+    type: Boolean,
+    default: false
+  },
 
-  createdAt: { type: Date, default: Date.now }
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 const AlertModel = mongoose.models.Alert || mongoose.model<Alert>('Alert', alertSchema);

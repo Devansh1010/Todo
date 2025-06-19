@@ -11,6 +11,7 @@ export interface Task extends Document {
   description?: string;
   createdBy: mongoose.Types.ObjectId;
   workspaceId: mongoose.Types.ObjectId;
+  teamId: mongoose.Types.ObjectId;
   assignedTo?: {
     user: mongoose.Types.ObjectId;
     role: UserRole
@@ -53,6 +54,12 @@ const taskSchema = new Schema<Task>({
   workspaceId: {
     type: Schema.Types.ObjectId,
     ref: 'Workspace',
+    required: true
+  },
+
+  teamId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Team',
     required: true
   },
 

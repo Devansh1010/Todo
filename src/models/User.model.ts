@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose'
-import { UserRole } from '@/app/models/UserRole'
-import { USER_ROLES } from '@/app/models/UserRole'; 
+import { UserRole } from '@/models/UserRole'
+import { USER_ROLES } from '@/models/UserRole'; 
 
 export interface User extends Document {
 

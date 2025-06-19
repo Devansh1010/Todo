@@ -1,10 +1,6 @@
 import mongoose, { Schema, Document, ObjectId } from 'mongoose'
 import { USER_ROLES, UserRole } from './UserRole'
 
-
-
-
-
 export interface Workspace extends Document {
     name: string,
     description?: string,

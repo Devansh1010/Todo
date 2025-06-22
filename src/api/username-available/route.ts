@@ -4,6 +4,8 @@ import { ApiResponce } from "../../../types/ApiResponce";
 
 export async function GET(request: Request): Promise<ApiResponce> {
     try {
+
+        // const searchParams = new URL()
         const { username } = await request.json()
 
         const user = await User.findOne({ username })
@@ -15,7 +17,7 @@ export async function GET(request: Request): Promise<ApiResponce> {
             }
         }
 
-        return {
+        return  {
             success: true,
             message: "Username available"
         }

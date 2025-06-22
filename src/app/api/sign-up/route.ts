@@ -1,6 +1,6 @@
 import User from "@/models/User.model";
 import bcrypt from "bcryptjs";
-import { ApiResponce } from "../../../types/ApiResponce";
+import { ApiResponce } from "../../../../types/ApiResponce";
 
 export async function POST(request: Request): Promise<ApiResponce> {
     try {

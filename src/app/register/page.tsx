@@ -1,51 +1,74 @@
 "use client"
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { signUpValidation } from '@/schemas/signUpValidation';
-
+import axios, { AxiosError } from "axios"
+import { success } from 'zod/v4';
+import { ApiError } from 'next/dist/server/api-utils';
+import { ApiResponce } from '../../../types/ApiResponce';
+import { toast } from "sonner"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import Loader2, { Loader2Icon } from "lucide-react"
+import Link from 'next/link';
+import { useDebounceCallback } from 'usehooks-ts'
 
 const RegisterPage: React.FC = () => {
     const [username, setUsername] = React.useState('');
     const [isUsernameChecking, setIsUsernameChecking] = React.useState(false);
-    const [email, setEmail] = React.useState('');
-    const [password, setPassword] = React.useState('');
-    const [confirmPassword, setConfirmPassword] = React.useState('');
-    const [isLoading, setIsLoading] = React.useState(false);
+    const [usernameMessage, setUsernameMessage] = useState('');
     const [isSubmiting, setIsSubmiting] = React.useState(false);
+    const debounced = useDebounceCallback(setUsername, 500)
 
     const router = useRouter();
 
-    const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-            const res = await fetch("/api/auth/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ username, email, password })
-            });
+    useEffect(() => {
+        const checkIsUsernameAvailable = async () => {
+            if (username) {
+                setIsUsernameChecking(true)
+                setUsernameMessage('')
 
-            const data = await res.json();
-            console.log("Response data:", data);
+                try {
+                    const responce = await axios.get<ApiResponce>(`/api/check-username-unique?username=${username}`)
 
-            if (data.success) {
-                // Handle successful registration (e.g., redirect to login page)
-                console.log("Registration successful:", data.message);
-            } else {
-                // Handle registration error
-                console.error("Registration failed:", data.message);
+                    console.log("Axios responce data: ", responce)
+
+                    setUsernameMessage(responce.data?.message)
+
+                } catch (error) {
+                    setUsernameMessage("error checking username")
+                } finally {
+                    setIsUsernameChecking(false)
+                    setUsernameMessage('')
+                }
             }
+        }
 
-            setIsLoading(false);
+        checkIsUsernameAvailable()
+    }, [username])
+
+    const onSubmit = async (data: z.infer<typeof signUpValidation>) => {
+        setIsSubmiting(true);
+        try {
+            const res = await axios.post<ApiResponce>("/api/sign-up", data);
+
+            //TODO: check if res has success message or not then show toast
+            toast.success("Success", {
+                description: res.data.message
+            })
 
         } catch (error) {
-            console.error("Registration error:", error);
-
+            let axiosError = error as AxiosError<ApiResponce>
+            console.error("catch sign-up.tsx: Registration error:", error);
+            toast.error("Failed", {
+                description: axiosError.response?.data.message
+            })
+        } finally {
+            setIsSubmiting(false)
         }
     }
 
@@ -58,10 +81,103 @@ const RegisterPage: React.FC = () => {
         }
     })
     return (
-        <main>
-            <h1>Register</h1>
-            
-        </main>
+
+        <main className="min-h-screen bg-gray-50 flex flex-col justify-center px-6 py-12 lg:px-8">
+            <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+                <h1 className="text-3xl font-bold tracking-tight text-gray-900">Create your account</h1>
+                <p className="mt-2 text-sm text-gray-600">
+                    Already a member?{" "}
+                    <Link href="/sign-in" className="font-medium text-indigo-600 hover:underline">
+                        Sign in
+                    </Link>
+                </p>
+            </div>
+
+            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md bg-white p-8 shadow rounded-2xl border border-gray-100">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                        <FormField
+                            name="username"
+                            control={form.control}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Username</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="Enter your username"
+                                            {...field}
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                                debounced(e.target.value);
+                                            }}
+                                        />
+
+                                    </FormControl>
+                                    {isUsernameChecking && <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> }
+
+                                    <p className=
+                                    {`text-sm mt-1 ${usernameMessage === 'Username available' ? 'text-green-600':'text-red-600'}`}>
+                                        {usernameMessage}
+                                    </p>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                    <FormField
+                        name="email"
+                        control={form.control}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Email address</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="email"
+                                        placeholder="Enter your email"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        name="password"
+                        control={form.control}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Password</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="password"
+                                        placeholder="Create a strong password"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={isSubmiting}
+                    >
+                        {isSubmiting ? (
+                            <>
+                                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                                Creating account...
+                            </>
+                        ) : (
+                            "Sign Up"
+                        )}
+                    </Button>
+                </form>
+            </Form>
+        </div>
+        </main >
     );
 };
 

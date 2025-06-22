@@ -1,126 +1,98 @@
-import NextAuth, { type DefaultSession } from "next-auth"
-import { ZodError } from "zod"
-import Credentials from "next-auth/providers/credentials"
-
-import bcrypt from "bcryptjs"
-import User from "@/models/User.model"
-
-
-import Google from "next-auth/providers/google"
-import { dbConnect } from "./lib/dbConnect"
-import { string } from "zod/v4"
-
-declare module "next-auth" {
-  /**
-   * Returned by `auth`, `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-   */
-  interface Session {
-    user: {
-      /** The user's postal address. */
-      id: string
-      /**
-       * By default, TypeScript merges new interface properties and overwrites existing ones.
-       * In this case, the default session user properties will be overwritten,
-       * with the new ones defined above. To keep the default session user properties,
-       * you need to add them back into the newly declared interface.
-       */
-    } & DefaultSession["user"]
-  }
-}
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
+import bcrypt from "bcryptjs";
+import { dbConnect } from "./lib/dbConnect";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
-
       credentials: {
-        username: {
-          type: "text",
-          label: "Username",
-          placeholder: "Enter Username or Email"
+        email: {
+          type: "email",
+          label: "Email",
+          placeholder: "john@example.com",
         },
         password: {
           type: "password",
           label: "Password",
-          placeholder: "******"
+          placeholder: "******",
         },
-
       },
-      authorize: async (credentials: any): Promise<any> => {
-
-        await dbConnect()
-
+      authorize: async (credentials) => {
         try {
+          await dbConnect();
 
-          if (!credentials || !credentials.identifier.username || !credentials.identifier.password) {
-            throw new Error("Username and password are required")
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error("Please provide both email and password");
           }
 
-          //aggregation query to find user by username or email
-          const user = await User.findOne({
-            $or: [
-              { username: credentials.identifier.username },
-              { email: credentials.identifier.username }
-            ]
-          }).exec()
+          const User = (await import("./models/User.model")).default;
+
+          const user = await User.findOne({ email: credentials.email });
 
           if (!user) {
-            throw new Error("No user found with this email")
-
+            throw new Error("No user found with this email");
           }
 
-          const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password)
+          const password = credentials.password as string
 
-          console.log("User found:", user)
-          console.log("credentials: ", credentials)
+          const isvalid = await bcrypt.compare(password, user.password)
 
-          if (!isPasswordCorrect) {
-            throw new Error("Invalid Password")
+          if (!isvalid) {
+            throw new Error("Invalid password");
           }
 
-          return user
-
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.username, // If you use a username
+            role: user.role || "member", // If you're tracking role
+          };
         } catch (error: any) {
-            throw new Error(error)
+          console.error("Authorization Error:", error.message);
+          return null;
         }
-
       },
     }),
 
     Google,
-
   ],
 
   callbacks: {
     async jwt({ token, user }) {
+      // user is only available on login
       if (user) {
-        token._id = user._id?.toString()
-        token.username = user.username,
-        token.email = user.email
-        token.role = user.role
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.role = (user as any).role;
       }
 
-      return token
+      return token;
     },
-    async session({ session, token }) {
 
-      if (token) {
-        session.user._id = token.id as string,
-        session.user.username = token.username  as string,
-        session.user.email = token.email as string,
-        session.user.role = token.role as string
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
+        session.user.name = token.name as string;
+        (session.user as any).role = token.role;
       }
-      return session
+
+      return session;
     },
   },
 
   pages: {
-    signIn: "sign-in"
+    signIn: "/login",
+    error: "/login",
   },
 
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
-  secret: process.env.AUTH_SERECT
-})
+  secret: process.env.AUTH_SECRET,
+});

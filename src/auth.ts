@@ -1,12 +1,14 @@
 import NextAuth, { type DefaultSession } from "next-auth"
 import { ZodError } from "zod"
 import Credentials from "next-auth/providers/credentials"
-import { signInValidation } from "@/schemas/signInValidation"
+
 import bcrypt from "bcryptjs"
 import User from "@/models/User.model"
 
 
 import Google from "next-auth/providers/google"
+import { dbConnect } from "./lib/dbConnect"
+import { string } from "zod/v4"
 
 declare module "next-auth" {
   /**
@@ -26,7 +28,7 @@ declare module "next-auth" {
   }
 }
 
-export const { handlers, auth } = NextAuth({
+export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
 
@@ -43,44 +45,42 @@ export const { handlers, auth } = NextAuth({
         },
 
       },
-      authorize: async (credentials) => {
+      authorize: async (credentials: any): Promise<any> => {
+
+        await dbConnect()
+
         try {
-          if (!credentials || !credentials.username || !credentials.password) {
+
+          if (!credentials || !credentials.identifier.username || !credentials.identifier.password) {
             throw new Error("Username and password are required")
           }
-
-          const { username, password } = await signInValidation.parseAsync(credentials)
 
           //aggregation query to find user by username or email
           const user = await User.findOne({
             $or: [
-              { username: username },
-              { email: username }
+              { username: credentials.identifier.username },
+              { email: credentials.identifier.username }
             ]
           }).exec()
-
-
 
           if (!user) {
             throw new Error("No user found with this email")
 
           }
 
-          const isValid = await bcrypt.compare(password, user.password)
+          const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password)
 
           console.log("User found:", user)
+          console.log("credentials: ", credentials)
 
-          if (!isValid) {
+          if (!isPasswordCorrect) {
             throw new Error("Invalid Password")
           }
 
           return user
 
-        } catch (error) {
-          if (error instanceof ZodError) {
-            return null
-          }
-          return null;
+        } catch (error: any) {
+            throw new Error(error)
         }
 
       },
@@ -93,19 +93,34 @@ export const { handlers, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.username = user.name
+        token._id = user._id?.toString()
+        token.username = user.username,
         token.email = user.email
+        token.role = user.role
       }
+
       return token
     },
     async session({ session, token }) {
+
       if (token) {
-        session.user.id = token.id as string
-        session.user.name = token.username as string
-        session.user.email = token.email as string
+        session.user._id = token.id as string,
+        session.user.username = token.username  as string,
+        session.user.email = token.email as string,
+        session.user.role = token.role as string
       }
       return session
     },
   },
+
+  pages: {
+    signIn: "sign-in"
+  },
+
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60
+  },
+
+  secret: process.env.AUTH_SERECT
 })

@@ -1,13 +1,22 @@
 "use client"
 import React from 'react';
+import { useRouter } from 'next/navigation';
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { signUpValidation } from '@/schemas/signUpValidation';
 
 
 const RegisterPage: React.FC = () => {
-    const [isLoading, setIsLoading] = React.useState(false);
     const [username, setUsername] = React.useState('');
+    const [isUsernameChecking, setIsUsernameChecking] = React.useState(false);
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [confirmPassword, setConfirmPassword] = React.useState('');
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [isSubmiting, setIsSubmiting] = React.useState(false);
+
+    const router = useRouter();
 
     const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -22,6 +31,7 @@ const RegisterPage: React.FC = () => {
             });
 
             const data = await res.json();
+            console.log("Response data:", data);
 
             if (data.success) {
                 // Handle successful registration (e.g., redirect to login page)
@@ -32,16 +42,25 @@ const RegisterPage: React.FC = () => {
             }
 
             setIsLoading(false);
-            
+
         } catch (error) {
             console.error("Registration error:", error);
-            
+
         }
     }
+
+    const form = useForm<z.infer<typeof signUpValidation>>({
+        resolver: zodResolver(signUpValidation),
+        defaultValues: {
+            username: '',
+            email: '',
+            password: '',
+        }
+    })
     return (
         <main>
             <h1>Register</h1>
-            {/* Registration form will go here */}
+            
         </main>
     );
 };

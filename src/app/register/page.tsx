@@ -33,17 +33,20 @@ const RegisterPage: React.FC = () => {
                 setUsernameMessage('')
 
                 try {
+
                     const responce = await axios.get<ApiResponce>(`/api/check-username-unique?username=${username}`)
 
-                    console.log("Axios responce data: ", responce)
 
                     setUsernameMessage(responce.data?.message)
 
+
                 } catch (error) {
-                    setUsernameMessage("error checking username")
+
+                    setUsernameMessage("Username not available")
+
                 } finally {
                     setIsUsernameChecking(false)
-                    setUsernameMessage('')
+                    // setUsernameMessage('')
                 }
             }
         }
@@ -113,70 +116,80 @@ const RegisterPage: React.FC = () => {
                                         />
 
                                     </FormControl>
-                                    {isUsernameChecking && <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> }
 
-                                    <p className=
-                                    {`text-sm mt-1 ${usernameMessage === 'Username available' ? 'text-green-600':'text-red-600'}`}>
-                                        {usernameMessage}
+                                    <p
+                                        className={`text-sm mt-1 ${usernameMessage === 'Username Available' ? 'text-green-600' : 'text-red-600'
+                                            }`}
+                                    >
+                                        {isUsernameChecking ? (
+                                            <span className="flex items-center gap-2">
+                                                <Loader2Icon className="h-4 w-4 animate-spin" />
+                                                Checking...
+                                            </span>
+                                        ) : (
+                                            `${usernameMessage}`
+                                        )}
+                                        
                                     </p>
+                                        
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
 
-                    <FormField
-                        name="email"
-                        control={form.control}
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Email address</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="email"
-                                        placeholder="Enter your email"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                        <FormField
+                            name="email"
+                            control={form.control}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Email address</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="email"
+                                            placeholder="Enter your email"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    <FormField
-                        name="password"
-                        control={form.control}
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Password</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="password"
-                                        placeholder="Create a strong password"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                        <FormField
+                            name="password"
+                            control={form.control}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Password</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="password"
+                                            placeholder="Create a strong password"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    <Button
-                        type="submit"
-                        className="w-full"
-                        disabled={isSubmiting}
-                    >
-                        {isSubmiting ? (
-                            <>
-                                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                                Creating account...
-                            </>
-                        ) : (
-                            "Sign Up"
-                        )}
-                    </Button>
-                </form>
-            </Form>
-        </div>
+                        <Button
+                            type="submit"
+                            className="w-full"
+                            disabled={isSubmiting}
+                        >
+                            {isSubmiting ? (
+                                <>
+                                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                                    Creating account...
+                                </>
+                            ) : (
+                                "Sign Up"
+                            )}
+                        </Button>
+                    </form>
+                </Form>
+            </div>
         </main >
     );
 };

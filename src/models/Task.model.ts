@@ -23,7 +23,7 @@ export interface Task extends Document {
   subTasks?: SubTask[];
 }
 
-const subTaskSchema = new Schema<SubTask>({
+const subTaskSchema: Schema<SubTask> = new Schema({
   title: {
     type: String,
     required: true
@@ -35,7 +35,7 @@ const subTaskSchema = new Schema<SubTask>({
   }
 });
 
-const taskSchema = new Schema<Task>({
+const taskSchema: Schema<Task> = new Schema({
   title: {
     type: String,
     required: [true, 'Task title is required']

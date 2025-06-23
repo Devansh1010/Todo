@@ -7,7 +7,7 @@ export interface Team extends Document {
   members: mongoose.Types.ObjectId[]; // optional
 }
 
-const teamSchema = new Schema<Team>({
+const teamSchema: Schema<Team> = new Schema({
   name: {
     type: String,
     required: [true, 'Team name is required'],

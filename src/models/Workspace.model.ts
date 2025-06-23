@@ -36,7 +36,7 @@ export interface Workspace extends Document {
     ]
 }
 
-const workspaceSchema = new Schema<Workspace>({
+const workspaceSchema: Schema<Workspace> = new Schema({
     name: {
         type: String,
         required: [true, "Workspace Required"]

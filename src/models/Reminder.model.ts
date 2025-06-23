@@ -39,7 +39,7 @@ export interface Alert extends Document {
   createdAt: Date;
 }
 
-const alertSchema = new Schema<Alert>({
+const alertSchema: Schema<Alert> = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User', required: true

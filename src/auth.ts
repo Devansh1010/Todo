@@ -3,6 +3,9 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { dbConnect } from "./lib/dbConnect";
+// import User from "@/models/User.model";
+// import User from './models/User.model';
+
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -19,39 +22,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           placeholder: "******",
         },
       },
-      authorize: async (credentials) => {
+      authorize: async (credentials: any): Promise<any> => {
+
+        await dbConnect();
+        const User = (await import("@/models/User.model")).default;
+
         try {
-          await dbConnect();
+          
+          const user = await User.findOne({
+            $or: [
+              { email: credentials.email },
+              { username: credentials.email }
+            ]
+          })
 
-          if (!credentials?.email || !credentials?.password) {
-            throw new Error("Please provide both email and password");
-          }
-
-          const User = (await import("./models/User.model")).default;
-
-          const user = await User.findOne({ email: credentials.email });
 
           if (!user) {
-            throw new Error("No user found with this email");
+            throw new Error("No user found")
           }
 
-          const password = credentials.password as string
+          const isValid = await bcrypt.compare(credentials.password, user.password)
 
-          const isvalid = await bcrypt.compare(password, user.password)
-
-          if (!isvalid) {
-            throw new Error("Invalid password");
+          if (isValid) {
+            return user
+          } else {
+            throw new Error("Invalid Credentials")
           }
 
-          return {
-            id: user._id.toString(),
-            email: user.email,
-            name: user.username, // If you use a username
-            role: user.role || "member", // If you're tracking role
-          };
+
         } catch (error: any) {
           console.error("Authorization Error:", error.message);
-          return null;
+          throw new Error(error)
         }
       },
     }),

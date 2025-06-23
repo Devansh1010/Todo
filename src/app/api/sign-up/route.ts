@@ -2,17 +2,18 @@ import User from "@/models/User.model";
 import bcrypt from "bcryptjs";
 import { ApiResponce } from "../../../../types/ApiResponce";
 
-export async function POST(request: Request): Promise<ApiResponce> {
+export async function POST(request: Request) {
     try {
         const { username, email, password } = await request.json();
 
         // find user
         const existingUser = await User.findOne({ email })
+        
         if (existingUser) {
-            return {
+            return Response.json({
                 success: false,
-                message: "User already exists",
-            };
+                message: "User Alrady Exist"
+            }, { status: 400 });
         }
 
         // hashPassword
@@ -26,18 +27,18 @@ export async function POST(request: Request): Promise<ApiResponce> {
         })
 
 
-        return {
+       return Response.json({
             success: true,
-            message: "User Registerd Successfully",
-        };
+            message: "User Registed Successfully"
+        }, {status: 200})
 
 
 
     } catch (error) {
         console.log("Error registering user", error)
-        return {
+        return Response.json({
             success: false,
-            message: "Error generated while registering user",  
-        };
+            message: "Error registuring User"
+        }, {status: 500})
     }
 }

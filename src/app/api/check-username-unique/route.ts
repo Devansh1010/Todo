@@ -10,10 +10,9 @@ const usernameValidationSchema = z.object({
 })
 
 
-export async function GET(request: Request): Promise<ApiResponce> {
+export async function GET(request: Request) {
 
     await dbConnect()
-    console.log("Reached to the route of username-available")
 
     try {
         //get the entire url
@@ -26,16 +25,13 @@ export async function GET(request: Request): Promise<ApiResponce> {
         //zod validation
         const result = usernameValidationSchema.safeParse(queryParam)
 
-        console.log("zod validatoin result: ", result)
-
         if (!result.success) {
-            const uernameErrors = result.error.format().username?._errors || []
-
+            const usernameError = result.error.format().username?._errors || []
             //responce 
-            return {
+            return Response.json({
                 success: false,
-                message: "Invalid query params"
-            }
+                message: `usernameError ${usernameError}`
+            }, { status: 401 })
         }
 
         const { username } = result.data
@@ -43,22 +39,22 @@ export async function GET(request: Request): Promise<ApiResponce> {
         const existingUser = await UserModel.findOne({ username })
 
         if (existingUser) {
-            return {
+            return Response.json({
                 success: false,
                 message: "Username not available"
-            }
+            }, { status: 401 })
         }
 
-        return {
+        return Response.json({
             success: true,
-            message: "Username available"
-        }
+            message: "Username Available"
+        }, { status: 200 })
 
     } catch (error) {
         console.log("catch uername-abailable.ts: Error checking username ")
-        return {
-                success: false,
-                message: "Username not available"
-            }
+        return Response.json({
+            success: false,
+            message: "Error checking username availability."
+        }, { status: 500 })
     }
 }

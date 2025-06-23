@@ -3,9 +3,6 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { dbConnect } from "./lib/dbConnect";
-// import User from "@/models/User.model";
-// import User from './models/User.model';
-
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -22,6 +19,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           placeholder: "******",
         },
       },
+      
       authorize: async (credentials: any): Promise<any> => {
 
         await dbConnect();
@@ -44,13 +42,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const isValid = await bcrypt.compare(credentials.password, user.password)
 
           if (isValid) {
-            return user
+            return user 
           } else {
             throw new Error("Invalid Credentials")
           }
 
 
         } catch (error: any) {
+
           console.error("Authorization Error:", error.message);
           throw new Error(error)
         }

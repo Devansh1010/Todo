@@ -2,24 +2,27 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { UserRole } from '@/models/UserRole';
 import { USER_ROLES } from '@/models/UserRole';
 
+export interface Membership {
+  workspaceId: mongoose.Types.ObjectId;
+  teamsId: mongoose.Types.ObjectId[];
+  role: UserRole;
+  joinAt: Date;
+}
+
 export interface User extends Document {
   username: string;
   email: string;
   password: string;
   profilePicture?: string;
-  membership: Array<{
-    workspaceId: mongoose.Types.ObjectId;
-    teamsId: mongoose.Types.ObjectId[];
-    role: UserRole;
-    joinAt: Date;
-  }>;
+  membership: Membership[]
 }
 
-const userSchema: Schema<User> = new Schema(
-  {
+const UserSchema: Schema<User> = new Schema({
     username: {
       type: String,
       required: [true, 'Username is required'],
+      trim: true,
+      unique: true 
     },
 
     email: {
@@ -70,6 +73,5 @@ const userSchema: Schema<User> = new Schema(
 );
 
 
-const UserModel = (mongoose.models.User as mongoose.Model<User>) || (mongoose.model<User>('User', userSchema));
-
+const UserModel = (mongoose.models.User as mongoose.Model<User>) || (mongoose.model<User>('User', UserSchema));
 export default UserModel;

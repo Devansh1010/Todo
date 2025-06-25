@@ -34,7 +34,7 @@ import mongoose from "mongoose";
         cached.promise = null
         throw error
     }
-
+    console.log("DB Connected")
     return cached.conn
  }
 

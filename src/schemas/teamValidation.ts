@@ -5,7 +5,7 @@ const memberSchema = z
   .regex(/^[0-9a-fA-F]{24}$/, "Invalid ObjectId");
 
 
-const teamValidation = z.object({
+export const teamValidation = z.object({
     name: z.string()
     .min(1, "Team name is required"),
 

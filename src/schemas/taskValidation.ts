@@ -1,12 +1,12 @@
 import { z } from 'zod'
 import { UserRole } from '@/models/UserRole';
 
-const SubTaskSchema = z.object({
+export const SubTaskSchema = z.object({
     title: z.string().min(2, "Subtask title required minmum 2 characters"),
     isCompleted: z.boolean().optional().default(false),
 });
 
-const taskSchema = z.object({
+export const taskSchemaValidation = z.object({
     title: z.string()
         .min(2, "Minimum Two characters required in the task title")
         .max(30, "Title can't be longer than 30 charcters."),

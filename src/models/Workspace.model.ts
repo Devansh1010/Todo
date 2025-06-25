@@ -1,112 +1,132 @@
-import mongoose, { Schema, Document, ObjectId } from 'mongoose'
-import { USER_ROLES, UserRole } from './UserRole'
+import mongoose, { Schema, Document, Types } from 'mongoose';
+import { USER_ROLES, UserRole } from './UserRole';
+import { Type } from 'lucide-react';
+import { isAborted } from 'zod';
 
 export interface Workspace extends Document {
-    name: string,
-    description?: string,
-    createdBy: ObjectId,
+  name: string;
+  description?: string;
+  createdBy: Types.ObjectId;
 
-    members: [ // optional quick lookup 
-        {
-            userId: ObjectId,
-            role: UserRole,
-            joinedAt: Date
-        }
-    ],
+  members: Array<{
+    userId: Types.ObjectId;
+    role: UserRole;
+    joinedAt: Date;
+  }>;
 
-    deletedTasks: [ // soft-deleted tasks, purge after 3 days
-        {
-            taskId: ObjectId,
-            deletedAt: Date
-        }
-    ],
+  deletedTasks: Array<{
+    taskId: Types.ObjectId;
+    deletedAt: Date;
+  }>;
 
-    settings: {
-        theme?: string,
-        enableNotifications?: boolean,
-        autoArchiveAfterDays?: number
-    },
+  settings?: {
+    theme?: string;
+    enableNotifications?: boolean;
+    autoArchiveAfterDays?: number;
+  };
 
-    inviteTokens: [ // Optional — for shareable links
-        {
-            token: string,
-            role: UserRole,
-            expiresAt: Date
-        }
-    ]
+  invitedUser?: Array<{
+    userId: Types.ObjectId
+    role: UserRole;
+    isAccepted: boolean 
+  }>;
+
+  teams?: Array<{
+    teamId: Types.ObjectId;
+  }>;
 }
 
-const workspaceSchema: Schema<Workspace> = new Schema({
+const workspaceSchema: Schema<Workspace> = new Schema(
+  {
     name: {
-        type: String,
-        required: [true, "Workspace Required"]
+      type: String,
+      required: [true, 'Workspace name is required'],
     },
 
     description: {
-        type: String
+      type: String,
     },
+
     createdBy: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: [true, "Username reqired"]
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'Creator (createdBy) is required'],
     },
 
-    members: [ 
-        {
-            userId: {
-                type: Schema.Types.ObjectId,
-                ref: "User"
-            },
+    members: [
+      {
+        userId: {
+          type: Schema.Types.ObjectId,
+          ref: 'User',
+          required: true,
+        },
+        role: {
+          type: String,
+          enum: USER_ROLES,
+          default: 'member',
+          required: true,
+        },
+        joinedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
 
-            role: { type: UserRole },
+    invitedUser: [
+      {
+        userId: {
+          type: Types.ObjectId,
+          ref: "User"
+        },
+        role: {
+          type: String,
+          enum: USER_ROLES,
+          default: 'member',
+          required: true,
+        },
 
-            joinedAt: Date
+        isAccepted: {
+          type: Boolean,
+          default: false
         }
+      },
     ],
 
     deletedTasks: [
-        {
-            taskId: {
-                type: Schema.Types.ObjectId,
-                ref: 'Task'
-            },
-
-            deletedAt: Date
-        }
+      {
+        taskId: {
+          type: Schema.Types.ObjectId,
+          ref: 'Task',
+          required: true,
+        },
+        deletedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
     ],
 
     settings: {
-        theme: {
-            type: String,
-
-        },
-        enableNotifications: {
-            type: Boolean
-        },
-
-        autoArchiveAfterDays: {
-            type: Number
-        }
+      theme: { type: String },
+      enableNotifications: { type: Boolean, default: true },
     },
 
-    inviteTokens: [ // Optional 
-        {
-            token: {
-                type: String
 
-            },
-
-            role: {
-                type: UserRole,
-                enum: USER_ROLES,
-                required: true,
-                default: 'member'
-            },
-
-            expiresAt: Date
+    teams: [
+      {
+        teamId: {
+          type: Schema.Types.ObjectId,
+          ref: 'Team',
         }
+      }
     ]
-})
+  },
+  { timestamps: true }
+);
 
-const WorkspaceModel = mongoose.models.Workspace || mongoose.model<Workspace>('Workspace', workspaceSchema);
+const WorkspaceModel =
+  mongoose.models.Workspace ||
+  mongoose.model<Workspace>('Workspace', workspaceSchema);
+
 export default WorkspaceModel;

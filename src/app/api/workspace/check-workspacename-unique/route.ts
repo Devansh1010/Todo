@@ -51,13 +51,13 @@ export async function GET(request: Request) {
         if (existingWorkspace) {
             return Response.json({
                 success: false,
-                message: "Workspace already exist please choose different name"
+                message: "Please give unique workspace name"
             }, { status: 401 })
         }
 
         return Response.json({
             success: true,
-            message: "Workspace name unique"
+            message: "Workspace name is unique"
         }, { status: 200 })
 
     } catch (error) {

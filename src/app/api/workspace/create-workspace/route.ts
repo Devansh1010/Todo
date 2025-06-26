@@ -60,15 +60,7 @@ export async function POST(request: Request) {
             );
         }
 
-       await UserModel.findByIdAndUpdate(
-      createdBy,
-      {
-        $push: {
-          workspaceIds: workspace._id, 
-        },
-      },
-      { new: true }
-    );
+
 
         return Response.json(
             {

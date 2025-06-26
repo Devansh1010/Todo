@@ -1,11 +1,16 @@
 import { dbConnect } from "@/lib/dbConnect";
 import TaskModel from "@/models/Task.model";
 import TeamModel from "@/models/Team.model";
+import UserModel from "@/models/User.model";
 import WorkspaceModel from "@/models/Workspace.model";
 
 export async function DELETE(req: Request) {
     const { searchParams } = new URL(req.url);
+
     const workspaceId = searchParams.get("workspaceId");
+    const userId = searchParams.get("userId");
+
+    console.log("workspaceId and userId in deleteworkspaceId:- ", workspaceId, "UerId:-  " , userId )
 
     if (!workspaceId) {
         return Response.json({
@@ -27,6 +32,18 @@ export async function DELETE(req: Request) {
 
 
         await TeamModel.deleteMany({ workspaceId });
+
+
+        // delete from user model also
+        await UserModel.findByIdAndUpdate(
+            userId,
+            {
+                $pull: {
+                    workspaceIds: workspaceId,
+                },
+            },
+            { new: true }
+        );
 
 
         const res = await WorkspaceModel.deleteOne({ _id: workspaceId });

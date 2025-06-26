@@ -10,12 +10,16 @@ export interface Membership {
   joinAt: Date;
 }
 
+export interface workspaceIds {
+  workspaces: mongoose.Types.ObjectId[]
+}
+
 export interface User extends Document {
   username: string;
   email: string;
   password: string;
   profilePicture?: string;
-  workspaceId: mongoose.Types.ObjectId;
+  workspaceIds: workspaceIds[];
   isAccepted: boolean;
   membership: Membership[]
 }
@@ -47,10 +51,15 @@ const UserSchema: Schema<User> = new Schema({
     type: String,
   },
 
-  workspaceId: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Workspace',
-  }],
+  workspaceIds: [
+
+    {
+      workspaces: {
+        type: Schema.Types.ObjectId,
+        ref: 'Workspace',
+      }
+    }
+  ],
 
   membership: [
     {

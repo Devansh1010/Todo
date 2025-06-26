@@ -4,7 +4,7 @@ export interface Team extends Document {
   name: string;
   workspaceId: mongoose.Types.ObjectId;
   createdBy: mongoose.Types.ObjectId;
-  members: mongoose.Types.ObjectId[]; // optional
+  members: mongoose.Types.ObjectId[]; 
 }
 
 const teamSchema: Schema<Team> = new Schema({
@@ -16,7 +16,7 @@ const teamSchema: Schema<Team> = new Schema({
   workspaceId: {
     type: Schema.Types.ObjectId,
     ref: 'Workspace',
-    required: true,
+    required: true, 
   },
 
   createdBy: {
@@ -28,6 +28,7 @@ const teamSchema: Schema<Team> = new Schema({
   members: [{  // optional
     type: Schema.Types.ObjectId,
     ref: 'User',
+    default: []
   }],
 
 }, { timestamps: true });

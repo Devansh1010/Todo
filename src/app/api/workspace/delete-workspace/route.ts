@@ -4,13 +4,14 @@ import TeamModel from "@/models/Team.model";
 import UserModel from "@/models/User.model";
 import WorkspaceModel from "@/models/Workspace.model";
 
+
 export async function DELETE(req: Request) {
     const { searchParams } = new URL(req.url);
 
     const workspaceId = searchParams.get("workspaceId");
     const userId = searchParams.get("userId");
 
-    console.log("workspaceId and userId in deleteworkspaceId:- ", workspaceId, "UerId:-  " , userId )
+    console.log("workspaceId and userId in delete-workspaceId:- ", workspaceId, "UerId:-  ", userId)
 
     if (!workspaceId) {
         return Response.json({
@@ -24,14 +25,20 @@ export async function DELETE(req: Request) {
     try {
 
 
-        const teams = await TeamModel.find({ workspaceId });
+        const teams = await TeamModel.find({
+            workspaceId: workspaceId,
+        });
+
+        console.log("teams: ", teams)
 
         const teamIds = teams.map(team => team._id);
 
         await TaskModel.deleteMany({ teamId: { $in: teamIds } });
 
 
-        await TeamModel.deleteMany({ workspaceId });
+        const deletedTeams = await TeamModel.deleteMany({_id: {$in: teamIds}});
+
+        console.log(`🗑️ Deleted ${deletedTeams.deletedCount} Teams`);
 
 
         // delete from user model also

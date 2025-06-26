@@ -45,6 +45,7 @@ const workspaceSchema: Schema<Workspace> = new Schema(
 
     description: {
       type: String,
+      default: ''
     },
 
     createdBy: {

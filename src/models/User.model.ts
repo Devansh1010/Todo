@@ -1,17 +1,17 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { UserRole } from '@/models/UserRole';
 import { USER_ROLES } from '@/models/UserRole';
+import { Task } from './Task.model';
 
 export interface Membership {
-  userId: mongoose.Types.ObjectId
-  workspaceId: mongoose.Types.ObjectId;
-  teamsId: mongoose.Types.ObjectId[];
+  project: mongoose.Types.ObjectId;
   role: UserRole;
   joinAt: Date;
+  isAccepted: boolean
 }
 
-export interface workspaceIds {
-  workspaces: mongoose.Types.ObjectId[]
+export interface Projects {
+  project: mongoose.Types.ObjectId
 }
 
 export interface User extends Document {
@@ -19,9 +19,9 @@ export interface User extends Document {
   email: string;
   password: string;
   profilePicture?: string;
-  workspaceIds: workspaceIds[];
-  isAccepted: boolean;
+  projects: Projects[];
   membership: Membership[]
+  tasks: Task[]
 }
 
 const UserSchema: Schema<User> = new Schema({
@@ -51,25 +51,27 @@ const UserSchema: Schema<User> = new Schema({
     type: String,
   },
 
-  workspaceIds: [
-
+  projects: [
     {
-      workspaces: {
-        type: Schema.Types.ObjectId,
-        ref: 'Workspace',
-      }
+      project: Schema.Types.ObjectId,
+      ref: "Project"
+    }
+  ],
+
+
+  tasks: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Task"
     }
   ],
 
   membership: [
     {
-      userId: {
-        type: mongoose.Types.ObjectId,
-        ref: "User"
-      },
-      workspaceId: {
+
+      project: {
         type: Schema.Types.ObjectId,
-        ref: 'Workspace',
+        ref: 'Project',
       },
       role: {
         type: String,
@@ -77,12 +79,6 @@ const UserSchema: Schema<User> = new Schema({
         required: true,
         default: 'member',
       },
-      teamsId: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: 'Teams',
-        },
-      ],
 
       isAccepted: {
         type: Boolean,

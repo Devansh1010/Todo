@@ -72,21 +72,26 @@ const projectSchema: Schema<Project> = new Schema(
           type: Types.ObjectId,
           ref: "User"
         },
+        name: {
+          type: String,
+          required: [true, 'Invited user name is required'],
+        },
         role: {
           type: String,
           enum: USER_ROLES,
           default: 'member',
           required: true,
         },
-
         isAccepted: {
           type: Boolean,
           default: false
         }
-      },
-    ],
+      }
+    ]
+
 
   },
+
   { timestamps: true }
 );
 

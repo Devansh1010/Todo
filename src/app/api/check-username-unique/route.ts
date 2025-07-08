@@ -27,16 +27,19 @@ export async function GET(request: Request) {
 
         if (!result.success) {
             const usernameError = result.error.format().username?._errors || []
-            //responce 
+
             return Response.json({
                 success: false,
                 message: `usernameError ${usernameError}`
             }, { status: 401 })
         }
 
+        console.log("Zod Validated Result: ", result)
         const { username } = result.data
 
-        const existingUser = await UserModel.findOne({ username })
+        console.log(username)
+
+        const existingUser = await UserModel.findOne({ username: username })
 
         if (existingUser) {
             return Response.json({

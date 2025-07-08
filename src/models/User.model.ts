@@ -53,10 +53,13 @@ const UserSchema: Schema<User> = new Schema({
 
   projects: [
     {
-      project: Schema.Types.ObjectId,
-      ref: "Project"
+      project: {
+        type: Schema.Types.ObjectId,
+        ref: "Project"
+      }
     }
   ],
+
 
 
   tasks: [
@@ -71,7 +74,7 @@ const UserSchema: Schema<User> = new Schema({
 
       project: {
         type: Schema.Types.ObjectId,
-        ref: 'Project',
+        ref: "Project",
       },
       role: {
         type: String,

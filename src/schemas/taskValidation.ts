@@ -16,7 +16,7 @@ export const taskSchemaValidation = z.object({
         .optional(),
 
     createdBy: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid user ID"),
-    workspaceId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid workspace ID"),
+
 
     assignedTo: z.array(
         z.object({
@@ -24,6 +24,9 @@ export const taskSchemaValidation = z.object({
             role: z.nativeEnum(UserRole).default(UserRole.Member),
         })
     ).optional(),
+
+    teamId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid team ID").optional(),
+
 
     assignedTeams: z.array(
         z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid team ID")

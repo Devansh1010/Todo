@@ -60,12 +60,12 @@ const UserSchema: Schema<User> = new Schema({
     }
   ],
 
-
-
   tasks: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "Task"
+      task: {
+        type: Schema.Types.ObjectId,
+        ref: "Task"
+      }
     }
   ],
 

@@ -1,8 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import { USER_ROLES, UserRole } from './UserRole';
 
-
-
 export interface Members {
   userId: Types.ObjectId,
   name: string,
@@ -16,12 +14,17 @@ export interface Inviteduser {
   role: UserRole,
 }
 
+export interface Task {
+  task: Types.ObjectId
+}
+
 export interface Project extends Document {
   name: string;
   description?: string;
   createdBy: Types.ObjectId;
   members: Members[]
   invitedUser?: Inviteduser[]
+  tasks: Task[]
 }
 
 const projectSchema: Schema<Project> = new Schema(
@@ -41,6 +44,15 @@ const projectSchema: Schema<Project> = new Schema(
       ref: 'User',
       required: [true, 'Creator (createdBy) is required'],
     },
+
+    tasks: [
+      {
+        task: {
+          type: Schema.Types.ObjectId,
+          ref: "Task"
+        }
+      }
+    ],
 
     members: [
       {

@@ -1,48 +1,50 @@
 import { dbConnect } from "@/lib/dbConnect";
-import ProjectModel, { Project } from "@/models/Project.model";
-import UserModel from "@/models/User.model";
+import ProjectModel from "@/models/Project.model";
+import TaskModel from "@/models/Task.model";
+import { Task } from "@/models/Project.model";
+
 
 
 export async function POST(req: Request) {
 
-    const { userId } = await req.json()
+    const { projectId } = await req.json()
 
     await dbConnect()
 
     try {
 
-        const user = await UserModel.findOne({_id: userId});
+        const project = await ProjectModel.findOne({_id: projectId});
 
-        if (!user) {
+        if (!project) {
             return Response.json({
                 success: false,
-                message: "Failed to find user projects"
+                message: "Failed to find user project"
             }, { status: 400 })
         }
 
 
-        const projectExists = user.projects.map((proj) =>
-            proj.project.toString()
+        const taskExists = project.tasks.map((taskEntry: Task) =>
+            taskEntry.task.toString()
         );
 
 
-        const projects = await ProjectModel.find({
-            _id: { $in: projectExists }
+        const tasks = await TaskModel.find({
+            _id: { $in: taskExists }
         })
 
 
-        if (!projects) {
+        if (!tasks) {
             return Response.json({
                 success: false,
-                message: "no project found",
+                message: "no tasks found",
                 projects: []
             }, { status: 400 })
         }
 
         return Response.json({
             success: true,
-            message: "Project found",
-            projects
+            message: "Tasks found",
+            tasks
         }, { status: 201 })
 
     } catch (error) {

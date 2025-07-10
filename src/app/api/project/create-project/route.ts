@@ -48,6 +48,7 @@ export async function POST(req: Request) {
             success: true,
             message: "Project Created Successfully"
         }, { status: 201 })
+        
     } catch (error) {
 
         return Response.json({

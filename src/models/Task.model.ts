@@ -39,18 +39,22 @@ const subTaskSchema: Schema<SubTask> = new Schema({
 
 const taskSchema: Schema<Task> = new Schema(
   {
+    
     title: {
       type: String,
       required: [true, "Task title is required"],
     },
+
     description: {
       type: String,
     },
+
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+
     project: {
       type: Schema.Types.ObjectId,
       ref: "Project",

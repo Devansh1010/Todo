@@ -1,8 +1,6 @@
 import { dbConnect } from "@/lib/dbConnect";
 import ProjectModel from "@/models/Project.model";
 import UserModel from "@/models/User.model";
-import mongoose from "mongoose";
-
 
 
 // TODO: Templets section is pending

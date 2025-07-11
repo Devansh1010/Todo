@@ -1,9 +1,10 @@
-import { Team } from "@/models/Team.model";
-import { Workspace } from "@/models/Project.model";
+import { Project } from "@/models/Project.model";
+import { Task } from "@/models/Task.model";
 
-export interface ApiResponce {
+
+export  interface ApiResponce {
   success: boolean;
   message: string;
-  workspaces?: [Workspace];
-  teams?: [Team]
+  projects?: Array<Project>
+  tasks? : Array<Task>
 }

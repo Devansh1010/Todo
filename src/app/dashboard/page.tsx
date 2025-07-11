@@ -33,8 +33,6 @@ const DashboardPage = () => {
 
   const [selectedProject, setSelectedProject] = useState('')
 
-
-
   useEffect(() => {
     const getProjects = async () => {
       setIsGettingProjects(true)

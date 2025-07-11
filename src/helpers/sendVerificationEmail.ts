@@ -1,18 +1,31 @@
-import {resend} from '@/lib/resend'
+import { resend } from '@/lib/resend'
+import verificationEmail from '../../emails/VerificationEmailTemplet'
+import { ApiResponce } from '../../types/ApiResponce';
 
-import { ApiResponce } from '../../types/ApiResponce'
-import { NextResponse } from 'next/server'
-import { success } from 'zod/v4'
-
-export async function sendVerificaitonEmail(
+export async function sendVerification(
     email: string,
     username: string,
     verifyCode: string
 ): Promise<ApiResponce> {
     try {
 
-            
-    } catch (error) {
-      
+        const { data, error } = await resend.emails.send({
+            from: 'onboarding@resend.dev',
+            to: email,
+            subject: 'Verification Code || mystrymessages',
+            react: verificationEmail({ username, otp: verifyCode }),
+        });
+
+
+        return {
+            success: true,
+            message: "Email sent successfully"
+        }
+    } catch (emailError) {
+        console.log("Error sending Email", emailError)
+        return {
+            success: false,
+            message: "Error Sending Email"
+        }
     }
 }

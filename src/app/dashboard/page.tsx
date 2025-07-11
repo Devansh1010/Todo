@@ -1,164 +1,138 @@
 "use client"
-import React from 'react';
+import { useEffect, useState } from "react";
+import NavigationPage from "./navigation/page";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+
+// * Ui Cards
+import { Skeleton } from "@/components/ui/skeleton"
 import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
-import Link from 'next/link';
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Project } from "@/models/Project.model";
 
-import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react"
-import { Button } from '@/components/ui/button';
-
-import { useRouter } from 'next/navigation';
-import { signOut } from 'next-auth/react';
-
-
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import Link from "next/link";
 
 
 
 
 const DashboardPage = () => {
 
-  const router = useRouter()
-  const SignOut = () => {
-    signOut()
-    router.replace("/sign-in")
-  }
+  const { data: session } = useSession();
+
+  const [projects, setProjects] = useState<Project[]>([])
+  const [isGetingProjects, setIsGettingProjects] = useState(false)
+
+  const [selectedProject, setSelectedProject] = useState('')
+
+
+
+  useEffect(() => {
+    const getProjects = async () => {
+      setIsGettingProjects(true)
+      try {
+        const res = await axios.post(`/api/project/get-projects`, {}, {
+          withCredentials: true,
+        })
+
+        setProjects(res.data?.projects)
+        console.log(projects)
+      } catch (error) {
+        return Response.json({
+          message: "Error getting projects"
+        })
+      } finally {
+        setIsGettingProjects(false)
+      }
+    }
+    getProjects()
+  }, [session])
+
   return (
-    <header>
-      <nav className='h-20 w-full flex justify-center'>
-        <NavigationMenu viewport={false}>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Home</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                  <li className="row-span-3">
-                    <NavigationMenuLink asChild>
-                      <a
-                        className="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-6 no-underline outline-hidden select-none focus:shadow-md"
-                        href="/"
-                      >
-                        <div className="mt-4 mb-2 text-lg font-medium">
-                          WorkOrbit
-                        </div>
-                        <p className="text-muted-foreground text-sm leading-tight">
-                          Beautifully designed components built with Tailwind CSS.
-                        </p>
-                      </a>
-                    </NavigationMenuLink>
-                  </li>
 
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Components</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+    <div>
+      <NavigationPage />
 
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                <Link href="/docs">Docs</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>List</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[300px] gap-4">
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <Link href="#">
-                        <div className="font-medium">Components</div>
-                        <div className="text-muted-foreground">
-                          Browse all components in the library.
-                        </div>
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link href="#">
-                        <div className="font-medium">Documentation</div>
-                        <div className="text-muted-foreground">
-                          Learn how to use the library.
-                        </div>
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link href="#">
-                        <div className="font-medium">Blog</div>
-                        <div className="text-muted-foreground">
-                          Read our latest blog posts.
-                        </div>
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Simple</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[200px] gap-4">
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <Link href="#">Components</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link href="#">Documentation</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link href="#">Blocks</Link>
-                    </NavigationMenuLink>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[200px] gap-4">
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <Link href="#" className="flex-row items-center gap-2">
-                        <CircleHelpIcon />
-                        Backlog
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link href="#" className="flex-row items-center gap-2">
-                        <CircleIcon />
-                        To Do
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link href="#" className="flex-row items-center gap-2">
-                        <CircleCheckIcon />
-                        Done
-                      </Link>
+      <div className="container w-screen h-full flex flex-col items-center justify-center">
 
-                    </NavigationMenuLink>
-                  </li>
-                </ul>
+        <div className="max-w-4xl flex flex-col items-center">
+          <div className="project-container h-full w-full flex justify-center gap-2">
+            {/* Handle testCase if no proects are created */}
+            {isGetingProjects ?
+              (
+                <div className="flex flex-col space-y-3">
+                  <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                  </div>
+                </div>
+              ) :
+              (
+                projects.map((proj: Project) => (
+                  <Card key={proj._id as string} className="w-[450px] h-[260px] flex flex-col justify-between rounded-2xl shadow-md border border-gray-200 bg-white hover:shadow-lg transition-shadow duration-200">
+                    <CardHeader className="p-4">
+                      <CardTitle className="text-xl font-semibold text-gray-800 tracking-tight text-center">
+                        {proj.name}
+                      </CardTitle>
+                      <CardDescription className="text-sm text-gray-500 mt-1 text-center">
+                        {proj.description}
+                      </CardDescription>
+                    </CardHeader>
+
+                    <CardContent className="px-4 text-sm text-gray-600">
+                      {/* dynamic content */}
+                    </CardContent>
+
+                    <CardFooter className="flex items-center justify-start p-4 pt-0 mt-auto">
+                      <div className="flex -space-x-2">
+                        {proj.members.slice(0, 4).map((n: any, i: number) => (
+                          <div
+                            key={i}
+                            className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-xs border-2 border-white shadow-sm"
+                            title={n.name}
+                          >
+                            {n.name.slice(0, 2).toUpperCase()}
+                          </div>
+                        ))}
+                        {proj.members.length > 4 && (
+                          <div className="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs font-semibold border-2 border-white shadow-sm">
+                            +{proj.members.length - 4}
+                          </div>
+                        )}
+                      </div>
+                    </CardFooter>
+                  </Card>
+
+                ))
+              )
+            }
+          </div>
 
 
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-        <Button variant="default" onClick={() => signOut()}> Sign Out</Button>
+          <Link href=''>
+            <Button
+              className="m-3 px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md transition duration-200 ease-in-out rounded-lg font-semibold flex items-center gap-2"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Create Project
+            </Button>
+          </Link>
 
-      </nav>
+        </div>
+      </div>
+    </div>
 
-    </header>
-  );
+  )
+
 };
 
 export default DashboardPage;

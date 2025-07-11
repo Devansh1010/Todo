@@ -1,27 +1,32 @@
+import { requireAuth } from "@/lib/authRequire";
 import { dbConnect } from "@/lib/dbConnect";
 import ProjectModel, { Project } from "@/models/Project.model";
 import UserModel from "@/models/User.model";
 
-
 export async function POST(req: Request) {
 
-    const { userId } = await req.json()
 
-    await dbConnect()
 
     try {
 
-        const user = await UserModel.findOne({_id: userId});
+        const user = await requireAuth();
+        const userId = user.id;
 
-        if (!user) {
+
+        // TODO: Add authentication with role
+        await dbConnect()
+
+        const founduser = await UserModel.findOne({ _id: userId });
+
+        if (!founduser) {
             return Response.json({
                 success: false,
                 message: "Failed to find user projects"
-            }, { status: 400 })
+            }, { status: 401 })
         }
 
 
-        const projectExists = user.projects.map((proj) =>
+        const projectExists = founduser.projects.map((proj) =>
             proj.project.toString()
         );
 
@@ -36,7 +41,7 @@ export async function POST(req: Request) {
                 success: false,
                 message: "no project found",
                 projects: []
-            }, { status: 400 })
+            }, { status: 404 })
         }
 
         return Response.json({
@@ -45,12 +50,21 @@ export async function POST(req: Request) {
             projects
         }, { status: 201 })
 
-    } catch (error) {
+    } catch (error: any) {
+
+        const errorMessage = typeof error === "string" ? error : error.message;
+
+        if (errorMessage === "Unauthorized") {
+            return Response.json({
+                success: false,
+                message: "Unauthorized access"
+            }, { status: 401 });
+        }
 
         return Response.json({
             success: false,
-            message: "Error Getting Projects of User"
-        }, { status: 500 })
+            message: `Error Creating Project: ${errorMessage}`
+        }, { status: 500 });
 
     }
 

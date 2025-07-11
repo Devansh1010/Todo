@@ -63,10 +63,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       // user is only available on login
       if (user) {
-        token.id = user.id;
+        token.id = user.id?.toString();
         token.email = user.email;
         token.name = user.name;
-        token.role = (user as any).role;
+        token.role = user.role;
       }
 
       return token;
@@ -77,7 +77,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
-        (session.user as any).role = token.role;
+        session.user.role = token.role as string;
       }
 
       return session;

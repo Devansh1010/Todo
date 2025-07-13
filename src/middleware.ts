@@ -10,7 +10,7 @@ export async function middleware(req: NextRequest) {
   const publicPaths = ["/sign-in", "/sign-up", "/"];
   const isPublic = publicPaths.includes(req.nextUrl.pathname);
 
-  if (!isPublic && !session) {
+  if (!isPublic && (!session || !session.user)) {
     // User is trying to access a protected route without auth
     return NextResponse.redirect(new URL("/sign-in", req.nextUrl.origin));
   }

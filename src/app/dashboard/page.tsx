@@ -1,6 +1,5 @@
 "use client"
 import { useEffect, useState } from "react";
-import NavigationPage from "./navigation/page";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 
@@ -20,6 +19,7 @@ import { Project } from "@/models/Project.model";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 
 
@@ -30,8 +30,7 @@ const DashboardPage = () => {
 
   const [projects, setProjects] = useState<Project[]>([])
   const [isGetingProjects, setIsGettingProjects] = useState(false)
-
-  const [selectedProject, setSelectedProject] = useState('')
+  const router = useRouter()
 
   useEffect(() => {
     const getProjects = async () => {
@@ -57,7 +56,6 @@ const DashboardPage = () => {
   return (
 
     <div>
-      <NavigationPage />
 
       <div className="container w-screen h-full flex flex-col items-center justify-center">
 
@@ -69,14 +67,14 @@ const DashboardPage = () => {
                 <div className="flex flex-col space-y-3">
                   <Skeleton className="h-[125px] w-[250px] rounded-xl" />
                   <div className="space-y-2">
-                    <Skeleton className="h-4 w-[250px]" />
-                    <Skeleton className="h-4 w-[200px]" />
+                    <Skeleton className="h-4 w-[250px] p-2" />
+                    <Skeleton className="h-4 w-[200px] p-2" />
                   </div>
                 </div>
               ) :
               (
                 projects.map((proj: Project) => (
-                  <Card key={proj._id as string} className="w-[450px] h-[260px] flex flex-col justify-between rounded-2xl shadow-md border border-gray-200 bg-white hover:shadow-lg transition-shadow duration-200">
+                  <Card key={proj._id as string} onClick={() => router.replace(`/dashboard/project/${proj._id as string}`)} className="w-[450px] h-[260px] flex flex-col justify-between rounded-2xl shadow-md border border-gray-200 bg-white hover:shadow-lg transition-shadow duration-200">
                     <CardHeader className="p-4">
                       <CardTitle className="text-xl font-semibold text-gray-800 tracking-tight text-center">
                         {proj.name}

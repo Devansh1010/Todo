@@ -47,10 +47,8 @@ const projectSchema: Schema<Project> = new Schema(
 
     tasks: [
       {
-        task: {
-          type: Schema.Types.ObjectId,
-          ref: "Task"
-        }
+        type: Schema.Types.ObjectId,
+        ref: "Task"
       }
     ],
 

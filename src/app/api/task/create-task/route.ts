@@ -59,11 +59,12 @@ export async function POST(req: Request) {
             },
             { new: true }
         );
+        
         const updatedProject = await ProjectModel.findOneAndUpdate(
             { _id: project },
             {
                 $addToSet: {
-                    tasks: { task: task._id }
+                    tasks: task._id
                 }
             },
             { new: true }

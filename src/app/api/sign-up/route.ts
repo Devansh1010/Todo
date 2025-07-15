@@ -32,8 +32,6 @@ export async function POST(request: Request) {
             message: "User Registed Successfully"
         }, {status: 200})
 
-
-
     } catch (error) {
         console.log("Error registering user", error)
         return Response.json({

@@ -46,11 +46,12 @@ export async function POST(req: Request) {
             { _id: userId },
             {
                 $addToSet: {
-                    projects: { project: project._id }
-                }
+                    projects: project._id,  // ✅ directly use ObjectId
+                },
             },
             { new: true }
         );
+
 
         return Response.json({
             success: true,

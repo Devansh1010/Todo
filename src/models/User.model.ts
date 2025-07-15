@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { UserRole } from '@/models/UserRole';
 import { USER_ROLES } from '@/models/UserRole';
-import { Task } from './Task.model';
 
 export interface Membership {
   project: mongoose.Types.ObjectId;
@@ -10,18 +9,14 @@ export interface Membership {
   isAccepted: boolean
 }
 
-export interface Projects {
-  project: mongoose.Types.ObjectId
-}
-
 export interface User extends Document {
   username: string;
   email: string;
   password: string;
   profilePicture?: string;
-  projects: Projects[];
+  projects: mongoose.Types.ObjectId[];
   membership: Membership[]
-  tasks: Task[]
+  tasks: mongoose.Types.ObjectId[];
 }
 
 const UserSchema: Schema<User> = new Schema({
@@ -53,20 +48,16 @@ const UserSchema: Schema<User> = new Schema({
 
   projects: [
     {
-      project: {
-        type: Schema.Types.ObjectId,
-        ref: "Project"
-      }
-    }
+      type: Schema.Types.ObjectId,
+      ref: 'Project',
+    },
   ],
 
   tasks: [
     {
-      task: {
-        type: Schema.Types.ObjectId,
-        ref: "Task"
-      }
-    }
+      type: Schema.Types.ObjectId,
+      ref: 'Task',
+    },
   ],
 
   membership: [

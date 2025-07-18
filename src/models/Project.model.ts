@@ -25,6 +25,7 @@ export interface Project extends Document {
   members: Members[]
   invitedUser?: Inviteduser[]
   tasks: Task[]
+  templetes?: string[];
 }
 
 const projectSchema: Schema<Project> = new Schema(
@@ -49,6 +50,13 @@ const projectSchema: Schema<Project> = new Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "Task"
+      }
+    ],
+
+    templetes: [
+      {
+        type: String,
+        enum: ['kanban', 'todo', 'announcements', 'calendar'],
       }
     ],
 

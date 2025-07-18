@@ -14,8 +14,7 @@ export async function POST(req: Request) {
         const user = await requireAuth();
         const userId = user._id;
 
-
-        const { name, description, members, invitedUser } = await req.json()
+        const { projectId, name, description, members, invitedUser } = await req.json();
 
         if (!name || !userId) {
             return Response.json({
@@ -26,13 +25,15 @@ export async function POST(req: Request) {
 
         await dbConnect()
 
-        const project = await ProjectModel.create({
-            name,
-            description,
-            createdBy: userId,
-            members,
-            invitedUser
-        })
+        const project = await ProjectModel.findOneAndUpdate({ _id: projectId },
+            {
+                name,
+                description,
+                $addToSet: {
+                    members: { $each: members },
+                    invitedUser: { $each: invitedUser },
+                },
+            })
 
         if (!project) {
             return Response.json({
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
             { _id: userId },
             {
                 $addToSet: {
-                    projects: project._id,  
+                    projects: project._id,
                 },
             },
         );

@@ -11,11 +11,7 @@ export async function POST(req: Request) {
 
         const { projectId } = await req.json()
 
-        console.log("ProjectId:", projectId)
-
         await dbConnect()
-
-        console.log("Request came")
 
         const founduser = await UserModel.findOne({ _id: userId });
 
@@ -27,33 +23,37 @@ export async function POST(req: Request) {
         }
 
 
-        const projectExists = founduser.projects
-            .map((proj) => proj.toString())
-            .includes(projectId);
+        const projectExists = founduser.projects?.some(
+            (proj) => proj.toString() === projectId
+        );
 
-        console.log("Project Exists:", projectExists)
 
         if (!projectExists) {
             return Response.json({
                 success: false,
-                message: "not authorized to project",
+                message: "No project found in your projects",
                 project: {}
             }, { status: 403 })
         }
-        const project = await ProjectModel.find({ _id: projectId })
 
-        console.log(project)
+        await UserModel.findByIdAndUpdate(userId, {
+            $pull: { projects: projectId }
+        });
+
+
+        const project = await ProjectModel.findOneAndDelete({ _id: projectId })
+
         if (!project) {
             return Response.json({
                 success: false,
-                message: "no project found",
+                message: "No project found",
                 project: {}
             }, { status: 400 })
         }
 
         return Response.json({
             success: true,
-            message: "Project found",
+            message: "Project Deleted Successfully",
             project
         }, { status: 201 })
 

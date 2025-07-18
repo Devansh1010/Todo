@@ -1,9 +1,6 @@
 import { dbConnect } from "@/lib/dbConnect";
 import ProjectModel from "@/models/Project.model";
 import TaskModel from "@/models/Task.model";
-import { Task } from "@/models/Project.model";
-
-
 
 export async function POST(req: Request) {
 
@@ -13,7 +10,7 @@ export async function POST(req: Request) {
 
     try {
 
-        const project = await ProjectModel.findOne({_id: projectId});
+        const project = await ProjectModel.findOne({ _id: projectId });
 
         if (!project) {
             return Response.json({
@@ -23,10 +20,10 @@ export async function POST(req: Request) {
         }
 
 
-        const taskExists = project.tasks.map((taskEntry: Task) =>
-            taskEntry.task.toString()
-        );
+        // const taskExists = project.tasks.map((taskId: any) => taskId.toString());
 
+        const taskExists = project.tasks;
+        console.log(taskExists)
 
         const tasks = await TaskModel.find({
             _id: { $in: taskExists }

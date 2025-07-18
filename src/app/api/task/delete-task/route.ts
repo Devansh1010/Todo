@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/authRequire";
 import { dbConnect } from "@/lib/dbConnect";
 import ProjectModel from "@/models/Project.model";
+import TaskModel from "@/models/Task.model";
 import UserModel from "@/models/User.model";
 
 export async function POST(req: Request) {
@@ -9,7 +10,7 @@ export async function POST(req: Request) {
         const user = await requireAuth();
         const userId = user.id;
 
-        const { projectId } = await req.json()
+        const { taskId } = await req.json()
 
         await dbConnect()
 
@@ -18,48 +19,50 @@ export async function POST(req: Request) {
         if (!founduser) {
             return Response.json({
                 success: false,
-                message: "Failed to find user projects"
+                message: "Failed to find user tasks"
             }, { status: 401 })
         }
 
 
-        const projectExists = founduser.projects?.some(
-            (proj) => proj.toString() === projectId
+        const taskExist = founduser.tasks?.some(
+            (task) => task.toString() === taskId
         );
 
 
-        if (!projectExists) {
+        if (!taskExist) {
             return Response.json({
                 success: false,
-                message: "No project found in your projects",
-
+                message: "No task found in your tasks",
             }, { status: 403 })
         }
 
-        await UserModel.findByIdAndUpdate(userId, {
-            $pull: { projects: projectId }
-        });
+        const task = await TaskModel.findOneAndDelete({ _id: taskId })
 
-
-        const project = await ProjectModel.findOneAndDelete({ _id: projectId })
-
-        if (!project) {
+        if (!task) {
             return Response.json({
                 success: false,
-                message: "No project found",
+                message: "No task found",
             }, { status: 400 })
         }
 
+        await UserModel.findByIdAndUpdate(userId, {
+            $pull: { tasks: taskId }
+        });
+
+        await ProjectModel.findByIdAndUpdate(task.project, {
+            $pull: { tasks: taskId }
+        });
+
         return Response.json({
             success: true,
-            message: "Project Deleted Successfully",
+            message: "Task Deleted Successfully",
         }, { status: 201 })
 
     } catch (error) {
 
         return Response.json({
             success: false,
-            message: "Error deleting Project"
+            message: "Error deleting task"
         }, { status: 500 })
 
     }

@@ -1,11 +1,9 @@
-import { auth } from "@/auth";
+
 import { requireAuth } from "@/lib/authRequire";
 import { dbConnect } from "@/lib/dbConnect";
 import ProjectModel from "@/models/Project.model";
+import TaskModel from "@/models/Task.model";
 import UserModel from "@/models/User.model";
-import { User } from "@/models/User.model";
-
-// TODO: Templets section is pending
 
 export async function PATCH(req: Request) {
 
@@ -14,7 +12,16 @@ export async function PATCH(req: Request) {
         const user = await requireAuth();
         const userId = user._id;
 
-        const { projectId, name, description, members, invitedUser } = await req.json();
+        const { 
+            taskId, 
+            title,
+            description,
+            assignedTo,
+            dueDate,
+            status,
+            priority,
+            subTasks 
+        } = await req.json();
 
         if (!userId) {
             return Response.json({
@@ -25,20 +32,21 @@ export async function PATCH(req: Request) {
 
         await dbConnect()
 
-        const project = await ProjectModel.findOneAndUpdate({ _id: projectId },
+        const task = await TaskModel.findOneAndUpdate({ _id: taskId },
             {
-                name,
+                title,
                 description,
-                $addToSet: {
-                    members: { $each: members },
-                    invitedUser: { $each: invitedUser },
-                },
-            })
+                assignedTo:{ $addToSet: { $each: assignedTo },},
+                dueDate,
+                status,
+                priority,
+                subTasks: { $addToSet: { $each: subTasks },},
+            }, { new: true });
 
-        if (!project) {
+        if (!task) {
             return Response.json({
                 success: false,
-                message: "Failed to update Project"
+                message: "Failed to update Task"
             }, { status: 400 })
         }
 
@@ -47,7 +55,7 @@ export async function PATCH(req: Request) {
             { _id: userId },
             {
                 $addToSet: {
-                    projects: project._id,
+                    tasks: task._id,
                 },
             },
         );
@@ -55,7 +63,7 @@ export async function PATCH(req: Request) {
 
         return Response.json({
             success: true,
-            message: "Project updated Successfully"
+            message: "Task updated Successfully"
         }, { status: 201 })
 
     } catch (error: any) {
@@ -70,7 +78,7 @@ export async function PATCH(req: Request) {
 
         return Response.json({
             success: false,
-            message: `Error Updating Project: ${errorMessage}`
+            message: `Error Updating Task: ${errorMessage}`
         }, { status: 500 });
     }
 }

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { Separator } from "@/components/ui/separator"
 
 // * Ui Cards
 import { Skeleton } from "@/components/ui/skeleton"
@@ -16,10 +17,8 @@ import {
 } from "@/components/ui/card"
 import { Project } from "@/models/Project.model";
 
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import CreateProjectPage from "./project/create-project/page";
 
 
 
@@ -56,15 +55,13 @@ const DashboardPage = () => {
   return (
 
     <div>
-
       <div className="container w-screen h-full flex flex-col items-center justify-center">
-
         <div className="max-w-4xl flex flex-col items-center">
           <div className="project-container h-full w-full flex justify-center gap-2">
             {/* Handle testCase if no proects are created */}
             {isGetingProjects ?
               (
-                <div className="flex flex-col space-y-3">
+                <div className="flex flex-col space-y-3 absolute">
                   <Skeleton className="h-[125px] w-[250px] rounded-xl" />
                   <div className="space-y-2">
                     <Skeleton className="h-4 w-[250px] p-2" />
@@ -114,15 +111,10 @@ const DashboardPage = () => {
           </div>
 
 
-          <Link href=''>
-            <Button
-              className="m-3 px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md transition duration-200 ease-in-out rounded-lg font-semibold flex items-center gap-2"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Create Project
-            </Button>
-          </Link>
-
+          <div className="flex items-end justify-center min-h-[15rem] p-5">
+            <CreateProjectPage />
+          </div>
+          <Separator className="min-w-[70rem]" />
         </div>
       </div>
     </div>

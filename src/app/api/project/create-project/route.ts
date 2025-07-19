@@ -1,9 +1,9 @@
-import { auth } from "@/auth";
+
 import { requireAuth } from "@/lib/authRequire";
 import { dbConnect } from "@/lib/dbConnect";
 import ProjectModel from "@/models/Project.model";
 import UserModel from "@/models/User.model";
-import { User } from "@/models/User.model";
+
 
 // TODO: Templets section is pending
 
@@ -11,9 +11,9 @@ export async function POST(req: Request) {
 
     try {
 
+
         const user = await requireAuth();
         const userId = user._id;
-
 
         const { name, description, members, invitedUser } = await req.json()
 
@@ -42,6 +42,7 @@ export async function POST(req: Request) {
         }
 
 
+        console.log("Project Created Successfully", project);
         await UserModel.findOneAndUpdate(
             { _id: userId },
             {

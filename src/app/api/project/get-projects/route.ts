@@ -8,11 +8,10 @@ export async function POST(req: Request) {
 
 
     try {
-
         const user = await requireAuth();
         const userId = user.id;
 
-
+        console.log("User ID:", userId);
         // TODO: Add authentication with role
         await dbConnect()
 
@@ -24,12 +23,11 @@ export async function POST(req: Request) {
                 message: "Failed to find user projects"
             }, { status: 401 })
         }
-
-
         const projectExists = founduser.projects.map((proj) =>
-            proj.project.toString()
+            proj.toString()
         );
 
+        console.log("Project IDs:", projectExists);
 
         const projects = await ProjectModel.find({
             _id: { $in: projectExists }
@@ -63,7 +61,7 @@ export async function POST(req: Request) {
 
         return Response.json({
             success: false,
-            message: `Error Creating Project: ${errorMessage}`
+            message: `Error getting Project: ${errorMessage}`
         }, { status: 500 });
 
     }

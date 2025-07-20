@@ -10,7 +10,6 @@ import { User } from "@/models/User.model";
 export async function PATCH(req: Request) {
 
     try {
-
         const user = await requireAuth();
         const userId = user._id;
 

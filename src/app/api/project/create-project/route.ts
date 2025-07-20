@@ -42,7 +42,6 @@ export async function POST(req: Request) {
         }
 
 
-        console.log("Project Created Successfully", project);
         await UserModel.findOneAndUpdate(
             { _id: userId },
             {

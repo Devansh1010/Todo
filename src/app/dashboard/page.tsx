@@ -70,7 +70,7 @@ const DashboardPage = () => {
               ) :
               (
                 projects.map((proj: Project) => (
-                  <Card key={proj._id as string} onClick={() => router.replace(`/dashboard/project/${proj._id as string}`)} className="w-[450px] h-[260px] flex flex-col justify-between rounded-2xl shadow-md border border-gray-200 bg-white hover:shadow-lg transition-shadow duration-200">
+                  <Card key={proj._id as string} onClick={() => router.replace(`/dashboard/project/${proj._id as string}`)} className="md:w-[450px] md:h-[260px] w-[300px] flex flex-col justify-between rounded-2xl shadow-md border border-gray-200 bg-white hover:shadow-lg transition-shadow duration-200 absolute top-20">
                     <CardHeader className="p-4">
                       <CardTitle className="text-xl font-semibold text-gray-800 tracking-tight text-center">
                         {proj.name}

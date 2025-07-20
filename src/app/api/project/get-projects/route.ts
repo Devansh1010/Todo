@@ -5,8 +5,6 @@ import UserModel from "@/models/User.model";
 
 export async function POST(req: Request) {
 
-
-
     try {
         const user = await requireAuth();
         const userId = user.id;
@@ -65,5 +63,4 @@ export async function POST(req: Request) {
         }, { status: 500 });
 
     }
-
 }

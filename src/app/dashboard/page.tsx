@@ -19,6 +19,7 @@ import { Project } from "@/models/Project.model";
 
 import { useRouter } from "next/navigation";
 import CreateProjectPage from "./project/create-project/page";
+import AssignmentsPage from "./project/assignments/page";
 
 
 
@@ -54,18 +55,16 @@ const DashboardPage = () => {
 
   return (
 
-    <div>
-      <div className="container w-screen h-full flex flex-col items-center justify-center">
-        <div className="max-w-4xl flex flex-col items-center">
-          <div className="project-container h-full w-full flex justify-center gap-2">
+    <div className="mx-10 md:mx-20 md:max-w-7xl max-w-400">
+      <div className="container md:h-full flex flex-col items-center justify-center mx-auto">
+        <div className="w-full flex flex-col items-center justify-center">
+          <div className="project-container md:h-full w-full md:flex justify-center gap-2 flex-wrap items-center ">
             {/* Handle testCase if no proects are created */}
             {isGetingProjects ?
               (
-                <div className="flex flex-col space-y-3 absolute">
-                  <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                <div className="flex flex-col space-y-3 absolute top-20">
+                  <Skeleton className="md:h-[250px] md:w-[500px] rounded-xl h-[125px] w-[250px]" />
                   <div className="space-y-2">
-                    <Skeleton className="h-4 w-[250px] p-2" />
-                    <Skeleton className="h-4 w-[200px] p-2" />
                   </div>
                 </div>
               ) :
@@ -111,10 +110,23 @@ const DashboardPage = () => {
           </div>
 
 
-          <div className="flex items-end justify-center min-h-[15rem] p-5">
+          <div className="flex items-end justify-center md:min-h-[20rem] md:p-5 min-h-[20rem] ">
             <CreateProjectPage />
+            
           </div>
-          <Separator className="min-w-[70rem]" />
+          <Separator className="md:min-w-[70rem] min-w-[15rem] m-5" />
+
+
+          <div className="w-full flex gap-4 flex-col md:flex-row justify-center items-center mx-auto">
+            <div className="md:w-1/2  border border-gray-700 rounded-xl p-4 shadow-md md:h-[25rem] h-[20rem] w-[20rem] mx-auto m-5">
+              <p className="text-white">Left Card</p>
+            </div>
+
+            <div className="md:w-1/2 border border-gray-700 rounded-xl p-4 shadow-md md:h-[25rem] h-[20rem] w-[20rem] mx-auto flex">
+              <AssignmentsPage />
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
